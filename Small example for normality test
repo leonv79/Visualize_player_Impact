@@ -1,0 +1,32 @@
+import pickle
+# To load the dictionary back
+with open("lebron_23_24.pkl", "rb") as f:
+    loaded_dict = pickle.load(f)
+
+
+dataframes_3 = loaded_dict
+
+
+
+dataframes_3.keys()
+pd.to_numeric(dataframes_3['Arc3PctAssisted']['On-Off'])
+###we don't expect to have normality with such a small sample but just in case we can check it out with a Shapiro wilk test
+# Check for normality using the Shapiro-Wilk test
+normality_p_values = {}
+for stat_key in dataframes_3.keys():
+    shapiro_test = stats.shapiro(pd.to_numeric(dataframes_3[stat_key]['On-Off']))
+    p_value = shapiro_test.pvalue
+    normality_p_values[stat_key] = p_value
+    if p_value > 0.05:
+        print(f' {stat_key} seems to have normality somehow')
+        plt.figure(figsize=(8, 6))
+        stats.probplot(pd.to_numeric(dataframes_3[stat_key]['On-Off']), dist="norm", plot=plt)
+        plt.title("Q-Q Plot")
+        plt.show()
+    
+    
+
+#We see that almost none of the above stats seem to follow normal distribution. So we go to non parametric method to see statistical significance. 
+#In my testing i assumed that the lineups with and without a player are dependent(this one is open for interpretation).
+# So we go for wilcoxon test
+#The test subject in this situation is Lebron James
